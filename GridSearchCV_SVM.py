@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-header
+Created on Sun Feb  8 22:32:24 2026
+Analysing changes in accuracy of support vector machine classifier with
+polynomial kernal function with increasing degrees
 """
 from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score
@@ -28,20 +30,20 @@ X = df.drop(["Diagnosis"],axis=1)
 Y = df["Diagnosis"]=='M'
 Y = Y.astype('int')
 
-#partition into train (90%) and test (10%) splits
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1, stratify=Y, random_state=42)
+#partition into train (80%) and test (20%) splits
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=42)
 
-#initialize pipeline (note scaler not actually needed for random forest)
-pipeline = Pipeline([('scaler', StandardScaler()), ('classifier', RandomForestClassifier(max_depth=100))])
+#initialize pipeline
+pipeline = Pipeline([('scaler', StandardScaler()), ('classifier', SVC(kernel='poly'))])
 
-#number of random forest estimators to evaluate
-estimator_array = [10, 20, 30, 40, 50, 100, 200, 500, 1000]
+#polynomial degrees to try
+degree_array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 #number of cross-validation folds
 folds = 5
 
 #create gridsearch parameter dictionary
-params = {'classifier__n_estimators': estimator_array}
+params = {'classifier__degree': degree_array}
 
 #use gridsearch to perform cross-validation accross parameters
 gsc = GridSearchCV(pipeline, params, cv=folds, verbose=3, return_train_score=True)
@@ -60,10 +62,9 @@ print(f'Best Model: Test Set Precision = {test_precision}')
 
 #plot mean cross-validation score +- SEM over number of estimators
 fig = plt.figure()
-plt.errorbar(estimator_array,
+plt.errorbar(degree_array,
          gsc.cv_results_['mean_test_score'],
          gsc.cv_results_['std_test_score']/sqrt(folds),
          )
-plt.xlabel('n estimators')
-plt.ylim([0.9,1])
+plt.xlabel('degrees of polynomial kernel function')
 plt.ylabel('accuracy score (mean of folds +- SEM)')
