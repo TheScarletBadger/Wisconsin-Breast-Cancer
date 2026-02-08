@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Feb  7 20:52:23 2026
-
-@author: Barry
+Comparisson of logistic regression model performance before and after
+dimensionality reduction using principal component analysis.
+For reference, in original publication, predicted correctness was 97%
 """
 from ucimlrepo import fetch_ucirepo
 from numpy import round
@@ -58,9 +59,11 @@ pca.fit(X_scaled_train)
 evr = pca.explained_variance_ratio_.sum()*100
 print(f'{evr.round(decimals=1)}% of variance in predictor variables is captured in {n_pc} principal components\n')
 
-
+#Fit logistic regression model to data transformed into principal components
 log_regressor_pca = sklearn.linear_model.LogisticRegression()
 log_regressor_pca.fit(pca.transform(X_scaled_train), Y_train)
+
+#calculate and print accuracy and precision scores for model with PCA
 train_preds_pca = log_regressor_pca.predict(pca.transform(X_scaled_train))
 train_accuracy_pca = round(sklearn.metrics.accuracy_score(Y_train,train_preds_pca),decimals=3)
 train_precision_pca = round(sklearn.metrics.precision_score(Y_train,train_preds_pca),decimals=3)
