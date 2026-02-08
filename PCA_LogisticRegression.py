@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Feb  7 20:52:23 2026
-Comparisson of logistic regression model performance before and after
+Comparison of logistic regression model performance before and after
 dimensionality reduction using principal component analysis.
 For reference, in original publication, predicted correctness was 97%
 """
