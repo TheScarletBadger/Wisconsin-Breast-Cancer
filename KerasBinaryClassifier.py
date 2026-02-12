@@ -5,9 +5,12 @@ Simple neural network classification
 from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 from keras import Input
+from keras.utils import set_random_seed
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.preprocessing import StandardScaler
+
+set_random_seed(42)
 
 scaler = StandardScaler()
 
@@ -27,7 +30,7 @@ x = df.drop(["Diagnosis"],axis=1).values
 y = (df["Diagnosis"] == 'M').astype(int)
 
 #partition into train (80%) and test (20%) splits
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, stratify=y, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, stratify=y, random_state=42)
 scaler.fit(x_train)
 x_train = scaler.transform(x_train)
 x_test = scaler.transform(x_test)
@@ -39,12 +42,14 @@ model.add(Input(shape=(x_train.shape[1],)))
 model.add(Dense(50, activation='relu'))
 model.add(Dense(50, activation='relu'))
 model.add(Dense(50, activation='relu'))
+
 model.add(Dense(1, activation='sigmoid'))
 
 # Compile the model
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'] )
 model.fit(x_train, y_train, epochs=50, verbose=2)
 
-pred_test= model.predict(x_test)
+pred_test= model.predict(x_test)>0.5
+pred_test = pred_test.astype(int)
 scores = model.evaluate(x_test, y_test, verbose=2)
-print('Accuracy on test data: {} \n Error on test data: {}'.format(scores[1], 1 - scores[1]))
+print('\nAccuracy on test data: {} \n Error on test data: {}'.format(scores[1], 1 - scores[1]))
